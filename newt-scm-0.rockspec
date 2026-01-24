@@ -5,21 +5,13 @@ source = {
 }
 description = {
    homepage = "https://github.com/mischief/luanewt",
-   license = "ISC",
+   license = "GPL-2.0-or-later",
 }
 dependencies = {
    "lua >= 5.4, < 5.5",
 }
 
 build = {
---[[
-   type = "command",
-
-   build_command = "CFLAGS='$(CFLAGS)' meson setup --reconfigure --wipe -Dlua=lua$(LUA_VERSION) -Dlua-module-directory=$(LIBDIR) build",
-   install_command = "ninja -C build -v install",
---]]
----[[
---]]
   type = "builtin",
   modules = {
   	newt = {
