@@ -441,6 +441,27 @@ listboxselect(lua_State *L)
 }
 
 /***
+Make an entry current, by its 1-based position.
+@function setcurrent
+@int n position of the entry
+*/
+static int
+listboxsetcurrent(lua_State *L)
+{
+	struct luanewtco *co = luaL_checkudata(L, 1, NEWTLISTBOX_MT);
+	int n = luaL_checkint(L, 2);
+
+	if (co->co == NULL)
+		return luaL_error(L, "component destroyed");
+	luaL_argcheck(L, n >= 1 && n <= newtListboxItemCount(co->co), 2,
+	    "position out of range");
+
+	newtListboxSetCurrent(co->co, n - 1);
+
+	return 0;
+}
+
+/***
 Return the number of entries in the listbox.
 @function itemcount
 @treturn int number of entries
@@ -507,6 +528,7 @@ static const luaL_Reg newtlistbox_meta[] = {
 	{"clear", listboxclear},
 	{"select", listboxselect},
 	{"itemcount", listboxitemcount},
+	{"setcurrent", listboxsetcurrent},
 	{"selected", listboxselected},
 	{"__gc", gc},
 	{0, 0},
