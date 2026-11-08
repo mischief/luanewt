@@ -46,8 +46,6 @@ lua_libnewt = shared_library('newt',
   c_args: ['-DLUANEWT_COMPILATION'],
 )
 
-lua_bin = find_program(dep_name)
-# test('newt_test', lua_bin, depends: lua_libimsg, args: files('imsg_test.lua'), workdir: meson.current_build_dir())
 
 ldoc_bin = find_program('ldoc', required: false)
 if ldoc_bin.found()

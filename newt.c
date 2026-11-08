@@ -346,7 +346,7 @@ static luaL_Reg const newtlib[] = {
 	{"setcolor", lua_newt_setcolor},
 	{"refresh", lua_newt_refresh},
 	{"suspend", lua_newt_suspend},
-	{"setsupendcallback", lua_newt_setsuspendcallback},
+	{"setsuspendcallback", lua_newt_setsuspendcallback},
 	{"sethelpcallback", lua_newt_sethelpcallback},
 	{"resume", lua_newt_resume},
 	{"pushhelpline", lua_newt_pushhelpline},
