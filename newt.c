@@ -657,7 +657,8 @@ lua_newt_winmessage(lua_State *L)
 	const char *text = luaL_checkstring(L, 3);
 
 	CHECK_INIT();
-	newtWinMessage(noconst(title), noconst(buttontext), noconst(text));
+	/* The text is a printf format in newt: pass it as an argument. */
+	newtWinMessage(noconst(title), noconst(buttontext), noconst("%s"), text);
 
 	return 0;
 }
@@ -682,7 +683,7 @@ lua_newt_winchoice(lua_State *L)
 	CHECK_INIT();
 	lua_pushinteger(L,
 	    newtWinChoice(noconst(title), noconst(button1), noconst(button2),
-	        noconst(text)));
+	        noconst("%s"), text));
 
 	return 1;
 }
