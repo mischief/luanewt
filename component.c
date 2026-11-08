@@ -378,6 +378,10 @@ listboxselected(lua_State *L)
 	}
 
 	sel = newtListboxGetSelection(co->co, &n);
+	if (sel == NULL) {
+		lua_pushnil(L);
+		return 1;
+	}
 
 	lua_rawgeti(L, LUA_REGISTRYINDEX, co->tref);
 
