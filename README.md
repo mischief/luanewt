@@ -55,7 +55,9 @@ See `examples/` for more.  `examples/launcher.lua` needs `inifile` and
 
     meson setup build
     ninja -C build          # build
+    meson test -C build     # test suite (needs a tty)
     ninja -C build cppcheck # static analysis
+    ninja -C build check-valgrind # memory-error check
     ninja -C build format    # clang-format
     ninja -C build index.html # ldoc docs
 

@@ -102,3 +102,32 @@ if ldoc_bin.found()
     command: [ldoc_bin, '-c', 'config.ld', '-d', '@OUTDIR@', '@INPUT@'],
   )
 endif
+
+lua = find_program('lua5.4', required: false)
+script = find_program('script', required: false)
+
+lua_cpath_env = 'LUA_CPATH=' + meson.current_build_dir() + '/?.so;;'
+
+if lua.found() and script.found()
+  test('newt',
+    script,
+    args: [
+      '-qec',
+      ' '.join([lua.full_path(), meson.current_source_dir() / 'tests/test.lua']),
+    ],
+    env: [lua_cpath_env],
+    timeout: 60,
+  )
+endif
+
+valgrind = find_program('valgrind', required: false)
+if lua.found() and script.found() and valgrind.found()
+  vg_cmd = ' '.join([
+    valgrind.full_path(), '-q', '--error-exitcode=1', '--leak-check=no',
+    lua.full_path(), meson.current_source_dir() / 'tests/test.lua',
+  ])
+  run_target('check-valgrind',
+    command: [script, '-qec', vg_cmd],
+    env: [lua_cpath_env],
+  )
+endif
