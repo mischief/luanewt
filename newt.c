@@ -1,9 +1,9 @@
 /// lua libnewt wrapper
 // @module newt
 // @author Nick Owens <mischief@offblast.org>
-// @license GPL-2.0-or-later
+// @license ISC
 
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: ISC
 
 #include <string.h>
 

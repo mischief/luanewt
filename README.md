@@ -32,4 +32,4 @@ See `examples/` for more. `examples/launcher.lua` needs `inifile` and `posix`.
 
 Copyright Nick Owens <mischief@offblast.org>
 
-SPDX-License-Identifier: GPL-2.0-or-later
+SPDX-License-Identifier: ISC

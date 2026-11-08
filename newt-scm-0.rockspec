@@ -5,7 +5,7 @@ source = {
 }
 description = {
    homepage = "https://github.com/mischief/luanewt",
-   license = "GPL-2.0-or-later",
+   license = "ISC",
 }
 dependencies = {
    "lua >= 5.4, < 5.5",
