@@ -7,10 +7,13 @@ toolkit used by the Anaconda installer.
 
 - Window and form management: `openwindow`, `centeredwindow`, `popwindow`,
   `form`, `form:run`, `form:draw`, `form:addhotkey`.
-- Components: `button`, `compactbutton`, `checkbox`, `label`, `listbox`.
+- Components: `button`, `compactbutton`, `checkbox`, `label`, `listbox`,
+  `entry`, `textbox`, `scale`, `verticalscrollbar`.
 - Component methods: `callback`, `checkbox:get()/set()`,
   `label:settext()`, listbox `append/current/setwidth/delete/clear/select/
-  itemcount/selected`.
+  itemcount/selected`, entry `get/set`, textbox `settext/setheight/
+  getnumlines`, scale/scrollbar `set`, plus `winmessage`/`winchoice`
+  modal dialogs.
 - Form extras: `form:watchfd()`, `form:settimer()`, `form:current()`,
   `form:setcurrent()`, `form:destroy()`.
 - All `NEWT_KEY_*` and `NEWT_FD_*` constants are exported.

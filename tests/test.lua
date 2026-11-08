@@ -107,6 +107,30 @@ b2:callback(function() end)
 b2:callback(function() end)
 check(true, 'double callback registration')
 
+-- newly wrapped components
+local e = newt.entry(1, 1, 'hello', 20, { password = false })
+check(getmetatable(e) ~= nil, 'entry has metatable')
+check(e:get() == 'hello', 'entry get initial')
+e:set('world', true)
+check(e:get() == 'world', 'entry set/get')
+
+local tb = newt.textbox(1, 1, 20, 5, { wrap = true })
+check(getmetatable(tb) ~= nil, 'textbox has metatable')
+tb:settext('line1\nline2')
+check(tb:getnumlines() >= 1, 'textbox numlines')
+tb:setheight(8)
+
+local sc = newt.scale(1, 1, 20, 100)
+check(getmetatable(sc) ~= nil, 'scale has metatable')
+sc:set(50)
+
+local sb = newt.verticalscrollbar(1, 1, 10, 1, 2)
+check(getmetatable(sb) ~= nil, 'scrollbar has metatable')
+sb:set(4, 20)
+
+check(type(newt.winmessage) == 'function', 'winmessage is a function')
+check(type(newt.winchoice) == 'function', 'winchoice is a function')
+
 newt.finished()
 
 print(failed == 0 and 'ALL PASS' or (failed .. ' FAILURES'))

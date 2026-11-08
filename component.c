@@ -512,12 +512,312 @@ static const luaL_Reg newtlistbox_meta[] = {
 	{0, 0},
 };
 
+/*
+ * Generic flag-table reader for components that take a flags table.
+ */
+static void
+compflags(lua_State *L, int idx, int *flags)
+{
+	int f = 0;
+
+	if (lua_istable(L, idx)) {
+		checkflag(L, idx, f, "returnexit", NEWT_FLAG_RETURNEXIT);
+		checkflag(L, idx, f, "border", NEWT_FLAG_BORDER);
+		checkflag(L, idx, f, "scroll", NEWT_FLAG_SCROLL);
+		checkflag(L, idx, f, "hidden", NEWT_FLAG_HIDDEN);
+		checkflag(L, idx, f, "disabled", NEWT_FLAG_DISABLED);
+		checkflag(L, idx, f, "password", NEWT_FLAG_PASSWORD);
+		checkflag(L, idx, f, "wrap", NEWT_FLAG_WRAP);
+	}
+
+	*flags = f;
+}
+
+/***
+Create an entry (single-line input) component.
+@function entry
+@param left column
+@param top row
+@param initial initial text (optional)
+@param width width in columns
+@param flags table `{scroll=, hidden=, disabled=, password=, returnexit=}`
+@treturn newtentry the entry
+*/
+static int
+entry(lua_State *L)
+{
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
+	const char *initial = luaL_optstring(L, 3, NULL);
+	int width = luaL_checkint(L, 4);
+	int flags = 0;
+
+	compflags(L, 5, &flags);
+
+	(void)lua_component_set(L,
+	    newtEntry(left, top, initial, width, NULL, flags), NEWTENTRY_MT);
+
+	return 1;
+}
+
+/***
+Get the entry's current text.
+@function get
+@treturn string the text, or nil
+*/
+static int
+entry_get(lua_State *L)
+{
+	struct luanewtco *co = luaL_checkudata(L, 1, NEWTENTRY_MT);
+	char *v;
+
+	if (co->co == NULL)
+		return luaL_error(L, "component destroyed");
+
+	v = newtEntryGetValue(co->co);
+	if (v != NULL)
+		lua_pushstring(L, v);
+	else
+		lua_pushnil(L);
+
+	return 1;
+}
+
+/***
+Set the entry's text.
+@function set
+@param text new text
+@param cursoratend boolean, place cursor at end
+*/
+static int
+entry_set(lua_State *L)
+{
+	struct luanewtco *co = luaL_checkudata(L, 1, NEWTENTRY_MT);
+	const char *v = luaL_checkstring(L, 2);
+	int cursor = lua_toboolean(L, 3);
+
+	if (co->co == NULL)
+		return luaL_error(L, "component destroyed");
+
+	newtEntrySet(co->co, v, cursor);
+
+	return 0;
+}
+
+static const luaL_Reg newtentry_meta[] = {
+	{"get", entry_get},
+	{"set", entry_set},
+	{"callback", luanewt_component_callback},
+	{"__gc", gc},
+	{0, 0},
+};
+
+/***
+Create a textbox (multi-line read-only display) component.
+@function textbox
+@param left column
+@param top row
+@param width width in columns
+@param height height in rows
+@param flags table `{wrap=, scroll=}`
+@treturn newttextbox the textbox
+*/
+static int
+textbox(lua_State *L)
+{
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
+	int width = luaL_checkint(L, 3);
+	int height = luaL_checkint(L, 4);
+	int flags = 0;
+
+	compflags(L, 5, &flags);
+
+	(void)lua_component_set(L,
+	    newtTextbox(left, top, width, height, flags), NEWTTEXTBOX_MT);
+
+	return 1;
+}
+
+/***
+Set the textbox content.
+@function settext
+@param text the text
+*/
+static int
+textbox_settext(lua_State *L)
+{
+	struct luanewtco *co = luaL_checkudata(L, 1, NEWTTEXTBOX_MT);
+	const char *text = luaL_checkstring(L, 2);
+
+	if (co->co == NULL)
+		return luaL_error(L, "component destroyed");
+
+	newtTextboxSetText(co->co, text);
+
+	return 0;
+}
+
+/***
+Set the textbox height.
+@function setheight
+@param height height in rows
+*/
+static int
+textbox_setheight(lua_State *L)
+{
+	struct luanewtco *co = luaL_checkudata(L, 1, NEWTTEXTBOX_MT);
+	int height = luaL_checkint(L, 2);
+
+	if (co->co == NULL)
+		return luaL_error(L, "component destroyed");
+
+	newtTextboxSetHeight(co->co, height);
+
+	return 0;
+}
+
+/***
+Return the number of lines in the textbox.
+@function getnumlines
+@treturn int number of lines
+*/
+static int
+textbox_getnumlines(lua_State *L)
+{
+	struct luanewtco *co = luaL_checkudata(L, 1, NEWTTEXTBOX_MT);
+
+	if (co->co == NULL)
+		return luaL_error(L, "component destroyed");
+
+	lua_pushinteger(L, newtTextboxGetNumLines(co->co));
+
+	return 1;
+}
+
+static const luaL_Reg newttextbox_meta[] = {
+	{"settext", textbox_settext},
+	{"setheight", textbox_setheight},
+	{"getnumlines", textbox_getnumlines},
+	{"callback", luanewt_component_callback},
+	{"__gc", gc},
+	{0, 0},
+};
+
+/***
+Create a scale (progress bar) component.
+@function scale
+@param left column
+@param top row
+@param width width in columns
+@param fullvalue maximum value
+@treturn newtscale the scale
+*/
+static int
+scale(lua_State *L)
+{
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
+	int width = luaL_checkint(L, 3);
+	long long full = luaL_checkinteger(L, 4);
+
+	(void)lua_component_set(L,
+	    newtScale(left, top, width, full), NEWTSCALE_MT);
+
+	return 1;
+}
+
+/***
+Set the scale's current value.
+@function set
+@param amount current value
+*/
+static int
+scale_set(lua_State *L)
+{
+	struct luanewtco *co = luaL_checkudata(L, 1, NEWTSCALE_MT);
+	unsigned long long amount =
+	    (unsigned long long)luaL_checkinteger(L, 2);
+
+	if (co->co == NULL)
+		return luaL_error(L, "component destroyed");
+
+	newtScaleSet(co->co, amount);
+
+	return 0;
+}
+
+static const luaL_Reg newtscale_meta[] = {
+	{"set", scale_set},
+	{"callback", luanewt_component_callback},
+	{"__gc", gc},
+	{0, 0},
+};
+
+/***
+Create a vertical scrollbar component.
+@function verticalscrollbar
+@param left column
+@param top row
+@param height height in rows
+@param normal normal colorset
+@param thumb thumb colorset
+@treturn newtscrollbar the scrollbar
+*/
+static int
+scrollbar(lua_State *L)
+{
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
+	int height = luaL_checkint(L, 3);
+	int normal = luaL_checkint(L, 4);
+	int thumb = luaL_checkint(L, 5);
+
+	(void)lua_component_set(L,
+	    newtVerticalScrollbar(left, top, height, normal, thumb),
+	    NEWTSCROLLBAR_MT);
+
+	return 1;
+}
+
+/***
+Set the scrollbar position.
+@function set
+@param where current position
+@param total total range
+*/
+static int
+scrollbar_set(lua_State *L)
+{
+	struct luanewtco *co = luaL_checkudata(L, 1, NEWTSCROLLBAR_MT);
+	int where = luaL_checkint(L, 2);
+	int total = luaL_checkint(L, 3);
+
+	if (co->co == NULL)
+		return luaL_error(L, "component destroyed");
+
+	newtScrollbarSet(co->co, where, total);
+
+	return 0;
+}
+
+static const luaL_Reg newtscrollbar_meta[] = {
+	{"set", scrollbar_set},
+	{"callback", luanewt_component_callback},
+	{"__gc", gc},
+	{0, 0},
+};
+
 static const luaL_Reg componentlib[] = {
 	{"compactbutton", compactbutton},
 	{"button", button},
 	{"checkbox", checkbox},
 	{"label", label},
 	{"listbox", listbox},
+	{"entry", entry},
+	{"textbox", textbox},
+	{"scale", scale},
+	{"verticalscrollbar", scrollbar},
 	{0, 0}
 };
 
@@ -536,4 +836,8 @@ luanewt_component_register(lua_State *L)
 	luanewt_metatable(L, NEWTCHECKBOX_MT, newtcheckbox_meta);
 	luanewt_metatable(L, NEWTLABEL_MT, newtlabel_meta);
 	luanewt_metatable(L, NEWTLISTBOX_MT, newtlistbox_meta);
+	luanewt_metatable(L, NEWTENTRY_MT, newtentry_meta);
+	luanewt_metatable(L, NEWTTEXTBOX_MT, newttextbox_meta);
+	luanewt_metatable(L, NEWTSCALE_MT, newtscale_meta);
+	luanewt_metatable(L, NEWTSCROLLBAR_MT, newtscrollbar_meta);
 }

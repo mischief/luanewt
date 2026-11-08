@@ -122,6 +122,10 @@ lua_to_anycomponent(lua_State *L, int index)
 		NEWTCHECKBOX_MT,
 		NEWTLABEL_MT,
 		NEWTLISTBOX_MT,
+		NEWTENTRY_MT,
+		NEWTTEXTBOX_MT,
+		NEWTSCALE_MT,
+		NEWTSCROLLBAR_MT,
 		0,
 	};
 
@@ -231,6 +235,21 @@ luanewt_component_callback(lua_State *L)
 		if (!g_initialized)					\
 			return luaL_error(L, "newt: not initialized");	\
 	} while (0)
+
+/*
+ * newt's API is non-const but never modifies these strings.
+ */
+static char *
+noconst(const char *s)
+{
+	union {
+		const char *c;
+		char *m;
+	} u;
+
+	u.c = s;
+	return u.m;
+}
 
 /***
 Initialize the newt library.  Must be called before any other function.
@@ -445,18 +464,7 @@ lua_newt_setcolor(lua_State *L)
 	const char *bg = luaL_checkstring(L, 3);
 
 	CHECK_INIT();
-
-	/* newt does not modify these strings despite the non-const API. */
-	{
-		union {
-			const char *c;
-			char *m;
-		} u1, u2;
-
-		u1.c = fg;
-		u2.c = bg;
-		newtSetColor(colorset, u1.m, u2.m);
-	}
+	newtSetColor(colorset, noconst(fg), noconst(bg));
 
 	return 0;
 }
@@ -634,6 +642,51 @@ lua_newt_getscreensize(lua_State *L)
 	return 2;
 }
 
+/***
+Show a modal message window and wait for the button.
+@function winmessage
+@param title window title
+@param buttontext button label
+@param text message text
+*/
+static int
+lua_newt_winmessage(lua_State *L)
+{
+	const char *title = luaL_checkstring(L, 1);
+	const char *buttontext = luaL_checkstring(L, 2);
+	const char *text = luaL_checkstring(L, 3);
+
+	CHECK_INIT();
+	newtWinMessage(noconst(title), noconst(buttontext), noconst(text));
+
+	return 0;
+}
+
+/***
+Show a modal two-button choice window and return the chosen button.
+@function winchoice
+@param title window title
+@param button1 first button label
+@param button2 second button label
+@param text message text
+@treturn int 0 for F12, 1 for button1, 2 for button2
+*/
+static int
+lua_newt_winchoice(lua_State *L)
+{
+	const char *title = luaL_checkstring(L, 1);
+	const char *button1 = luaL_checkstring(L, 2);
+	const char *button2 = luaL_checkstring(L, 3);
+	const char *text = luaL_checkstring(L, 4);
+
+	CHECK_INIT();
+	lua_pushinteger(L,
+	    newtWinChoice(noconst(title), noconst(button1), noconst(button2),
+	        noconst(text)));
+
+	return 1;
+}
+
 static const luaL_Reg newtlib[] = {
 	{"init", lua_newt_init},
 	{"finished", lua_newt_finished},
@@ -661,6 +714,8 @@ static const luaL_Reg newtlib[] = {
 	{"cursoroff", lua_newt_cursoroff},
 	{"cursoron", lua_newt_cursoron},
 	{"getscreensize", lua_newt_getscreensize},
+	{"winmessage", lua_newt_winmessage},
+	{"winchoice", lua_newt_winchoice},
 	{0, 0}
 };
 
