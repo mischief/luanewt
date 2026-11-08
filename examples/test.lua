@@ -80,8 +80,8 @@ newt.popwindow()
 newt.cls()
 --newt.delay(500000)
 
-newt.finished()
-
-
 print(cb1:get())
+
+
+newt.finished()
 

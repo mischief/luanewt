@@ -42,6 +42,12 @@ form_destroy(lua_State *L, struct luanewtco *c)
 	c->co = NULL;
 }
 
+/***
+Create a new form.
+@function form
+@param vertbar optional vertical scrollbar component
+@treturn newtform the form userdata
+*/
 static int
 lua_newt_form(lua_State *L)
 {
@@ -72,6 +78,13 @@ static const luaL_Reg formlib[] = {
 	{0, 0}
 };
 
+/***
+Add one or more components to the form.  A component may belong to only one
+form.  The form keeps its children alive and destroys them with itself.
+@function addcomponents
+@param ... one or more components
+@raise an error if a component belongs to another form or is destroyed
+*/
 static int
 addcomponents(lua_State *L)
 {
@@ -106,6 +119,19 @@ addcomponents(lua_State *L)
 	return 0;
 }
 
+/***
+Run the form's event loop until it exits.  Returns a reason string and
+optional value:
+  - `"hotkey"`, key
+  - `"component"`, component userdata
+  - `"fd"`, fd
+  - `"timer"`
+  - `"error"`
+A callback error is propagated as a Lua error.
+@function run
+@treturn string reason
+@treturn [any] associated value
+*/
 static int
 run(lua_State *L)
 {
@@ -150,6 +176,10 @@ run(lua_State *L)
 	return luaL_error(L, "unhandled exit reason %d", (int)es.reason);
 }
 
+/***
+Draw the form without processing input.
+@function draw
+*/
 static int
 draw(lua_State *L)
 {
@@ -163,6 +193,11 @@ draw(lua_State *L)
 	return 0;
 }
 
+/***
+Add a hotkey that exits the form with reason `"hotkey"`.
+@function addhotkey
+@param key a key constant
+*/
 static int
 addhotkey(lua_State *L)
 {
@@ -177,6 +212,15 @@ addhotkey(lua_State *L)
 	return 0;
 }
 
+/***
+Watch a file descriptor for readability/writability.  Calling again for the
+same fd replaces its flags.  `form:run()` returns `"fd"`, fd when ready.
+Note: newt's select has no EINTR handling and a closed watched fd can loop
+forever.
+@function watchfd
+@param fd file descriptor, non-negative
+@param flags table `{read=, write=, except=}` booleans
+*/
 static int
 watchfd(lua_State *L)
 {
@@ -211,6 +255,12 @@ watchfd(lua_State *L)
 	return 0;
 }
 
+/***
+Set a timer in milliseconds; `0` disables it.  `form:run()` returns
+`"timer"` when it fires.
+@function settimer
+@param ms milliseconds, non-negative
+*/
 static int
 settimer(lua_State *L)
 {
@@ -227,6 +277,11 @@ settimer(lua_State *L)
 	return 0;
 }
 
+/***
+Return the currently-focused component, or nil.
+@function current
+@treturn newtcomponent the current component or nil
+*/
 static int
 current(lua_State *L)
 {
@@ -247,6 +302,11 @@ current(lua_State *L)
 	return 1;
 }
 
+/***
+Set the focused component.
+@function setcurrent
+@param comp component to focus
+*/
 static int
 setcurrent(lua_State *L)
 {
@@ -263,6 +323,11 @@ setcurrent(lua_State *L)
 	return 0;
 }
 
+/***
+Destroy the form and all of its components now.  Any later use of the form
+or its children raises an error.  Normally destruction happens in `__gc`.
+@function destroy
+*/
 static int
 destroy(lua_State *L)
 {

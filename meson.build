@@ -99,6 +99,6 @@ if ldoc_bin.found()
   documentation = custom_target('ldoc',
     input: [files('newt.c', 'component.c', 'form.c')],
     output: ['index.html', 'ldoc.css'],
-    command: [ldoc_bin, '-d', '@OUTDIR@', '@INPUT@'],
+    command: [ldoc_bin, '-c', 'config.ld', '-d', '@OUTDIR@', '@INPUT@'],
   )
 endif

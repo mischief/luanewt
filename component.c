@@ -31,6 +31,14 @@ gc(lua_State *L)
 	return 0;
 }
 
+/***
+Create a compact button.
+@function compactbutton
+@param left column
+@param top row
+@param text button label
+@treturn newtcomponent the button
+*/
 static int
 compactbutton(lua_State *L)
 {
@@ -44,6 +52,14 @@ compactbutton(lua_State *L)
 	return 1;
 }
 
+/***
+Create a button.
+@function button
+@param left column
+@param top row
+@param text button label
+@treturn newtcomponent the button
+*/
 static int
 button(lua_State *L)
 {
@@ -57,6 +73,15 @@ button(lua_State *L)
 	return 1;
 }
 
+/***
+Create a checkbox.
+@function checkbox
+@param left column
+@param top row
+@param text label
+@param on boolean initial state
+@treturn newtcheckbox the checkbox
+*/
 static int
 checkbox(lua_State *L)
 {
@@ -72,6 +97,12 @@ checkbox(lua_State *L)
 	return 1;
 }
 
+/***
+Get the checkbox state.  For the default two-state checkbox this returns a
+boolean; custom sequences return their single-character value.
+@function get
+@treturn boolean|string the state
+*/
 static int
 checkbox_get(lua_State *L)
 {
@@ -98,6 +129,11 @@ checkbox_get(lua_State *L)
 	return 1;
 }
 
+/***
+Set the checkbox state with a single character.
+@function set
+@param c single character state
+*/
 static int
 checkbox_set(lua_State *L)
 {
@@ -122,6 +158,14 @@ static const luaL_Reg newtcheckbox_meta[] = {
 	{0, 0},
 };
 
+/***
+Create a label.
+@function label
+@param left column
+@param top row
+@param text label text
+@treturn newtlabel the label
+*/
 static int
 label(lua_State *L)
 {
@@ -134,6 +178,11 @@ label(lua_State *L)
 	return 1;
 }
 
+/***
+Set the label text.
+@function settext
+@param text new text
+*/
 static int
 label_settext(lua_State *L)
 {
@@ -177,6 +226,15 @@ listboxflags(lua_State *L, int idx, int *flags)
 	*flags = f;
 }
 
+/***
+Create a listbox.
+@function listbox
+@param left column
+@param top row
+@param height visible rows
+@param flags table `{returnexit=, border=, multiple=, showcursor=}`
+@treturn newtlistbox the listbox
+*/
 static int
 listbox(lua_State *L)
 {
@@ -193,6 +251,12 @@ listbox(lua_State *L)
 	return 1;
 }
 
+/***
+Append an entry to the listbox.
+@function append
+@param text entry text
+@param value arbitrary value associated with the entry
+*/
 static int
 listboxappend(lua_State *L)
 {
@@ -221,6 +285,11 @@ listboxappend(lua_State *L)
 	return 0;
 }
 
+/***
+Return the value of the current listbox entry, or nil.
+@function current
+@treturn any the current value or nil
+*/
 static int
 listboxcurrent(lua_State *L)
 {
@@ -247,6 +316,11 @@ listboxcurrent(lua_State *L)
 	return 1;
 }
 
+/***
+Set the listbox width.
+@function setwidth
+@param width width in columns
+*/
 static int
 listboxsetwidth(lua_State *L)
 {
@@ -288,6 +362,11 @@ findbyvalue(lua_State *L, int t, int v)
 	return 0;
 }
 
+/***
+Delete the first entry whose associated value equals the argument.
+@function delete
+@param value the value to match
+*/
 static int
 listboxdelete(lua_State *L)
 {
@@ -326,6 +405,13 @@ listboxclear(lua_State *L)
 	return 0;
 }
 
+/***
+Select an entry by its text key.  The optional third argument is
+`"set"`, `"reset"` or `"toggle"` (default `"set"`).
+@function select
+@param key entry text
+@param sense optional selection sense
+*/
 static int
 listboxselect(lua_State *L)
 {
@@ -354,6 +440,11 @@ listboxselect(lua_State *L)
 	return 0;
 }
 
+/***
+Return the number of entries in the listbox.
+@function itemcount
+@treturn int number of entries
+*/
 static int
 listboxitemcount(lua_State *L)
 {
@@ -367,6 +458,12 @@ listboxitemcount(lua_State *L)
 	return 1;
 }
 
+/***
+Return a table of the currently selected entry values, or nil if there is
+no selection.
+@function selected
+@treturn table|nil selected values
+*/
 static int
 listboxselected(lua_State *L)
 {

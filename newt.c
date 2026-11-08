@@ -19,6 +19,20 @@
 
 #define NEWT_CO_REGISTRY "NEWTCOMPONENT"
 
+/***
+Lua bindings for libnewt, a text-mode UI toolkit.
+@section newt
+@module newt
+*/
+/***
+Module-level functions.
+@section functions
+*/
+/***
+Key and file-descriptor constants.
+@section constants
+*/
+
 static int g_initialized;
 static newtComponent g_runform;
 static int g_errref = LUA_NOREF;
@@ -177,6 +191,14 @@ newtcallback(newtComponent co, void *v)
 	}
 }
 
+/***
+Register a callback function for a component.  The callback receives the
+component as its only argument.  When a callback raises an error, the
+current `form:run()` propagates it after the form exits.
+@param comp component
+@param func callback function
+@raise an error if the component is destroyed or func is not a function
+*/
 int
 luanewt_component_callback(lua_State *L)
 {
@@ -210,6 +232,11 @@ luanewt_component_callback(lua_State *L)
 			return luaL_error(L, "newt: not initialized");	\
 	} while (0)
 
+/***
+Initialize the newt library.  Must be called before any other function.
+@function init
+@raise an error if newtInit fails or if init is called twice
+*/
 static int
 lua_newt_init(lua_State *L)
 {
@@ -224,6 +251,12 @@ lua_newt_init(lua_State *L)
 	return 0;
 }
 
+/***
+Shut down the newt library.  Must pair with init.  Idempotent guard: an
+error is raised if finished is called before init or twice.
+@function finished
+@raise an error if not initialized
+*/
 static int
 lua_newt_finished(lua_State *L)
 {
@@ -235,6 +268,10 @@ lua_newt_finished(lua_State *L)
 	return 0;
 }
 
+/***
+Clear the screen.
+@function cls
+*/
 static int
 lua_newt_cls(lua_State *L)
 {
@@ -243,6 +280,11 @@ lua_newt_cls(lua_State *L)
 	return 0;
 }
 
+/***
+Redraw the screen to fit the current terminal size.
+@function resizescreen
+@param redraw boolean, true to redraw
+*/
 static int
 lua_newt_resizescreen(lua_State *L)
 {
@@ -254,6 +296,10 @@ lua_newt_resizescreen(lua_State *L)
 	return 0;
 }
 
+/***
+Wait for a keypress.
+@function waitforkey
+*/
 static int
 lua_newt_waitforkey(lua_State *L)
 {
@@ -262,6 +308,10 @@ lua_newt_waitforkey(lua_State *L)
 	return 0;
 }
 
+/***
+Discard any pending queued key events.
+@function clearkeybuffer
+*/
 static int
 lua_newt_clearkeybuffer(lua_State *L)
 {
@@ -270,6 +320,12 @@ lua_newt_clearkeybuffer(lua_State *L)
 	return 0;
 }
 
+/***
+Sleep for a number of microseconds.  Zero is allowed.
+@function delay
+@param usecs number of microseconds to sleep
+@raise an error if usecs is negative
+*/
 static int
 lua_newt_delay(lua_State *L)
 {
@@ -282,6 +338,16 @@ lua_newt_delay(lua_State *L)
 	return 0;
 }
 
+/***
+Open a window at a position with a given size and title.
+@function openwindow
+@param left column of the window (not counting border)
+@param top row of the window
+@param width window width, must be positive
+@param height window height, must be positive
+@param title window title string
+@raise an error if width/height are not positive or the window stack is full
+*/
 static int
 lua_newt_openwindow(lua_State *L)
 {
@@ -302,6 +368,14 @@ lua_newt_openwindow(lua_State *L)
 	return 0;
 }
 
+/***
+Open a centered window of a given size and title.
+@function centeredwindow
+@param width window width, must be positive
+@param height window height, must be positive
+@param title window title string
+@raise an error if width/height are not positive or the window stack is full
+*/
 static int
 lua_newt_centeredwindow(lua_State *L)
 {
@@ -320,6 +394,10 @@ lua_newt_centeredwindow(lua_State *L)
 	return 0;
 }
 
+/***
+Close the most recently opened window and redraw.
+@function popwindow
+*/
 static int
 lua_newt_popwindow(lua_State *L)
 {
@@ -328,6 +406,10 @@ lua_newt_popwindow(lua_State *L)
 	return 0;
 }
 
+/***
+Close the most recently opened window without redrawing.
+@function popwindownorefresh
+*/
 static int
 lua_newt_popwindownorefresh(lua_State *L)
 {
@@ -336,6 +418,11 @@ lua_newt_popwindownorefresh(lua_State *L)
 	return 0;
 }
 
+/***
+Set the whole color palette.  Unimplemented.
+@function setcolors
+@raise always raises "unimplemented"
+*/
 static int
 lua_newt_setcolors(lua_State *L)
 {
@@ -343,6 +430,13 @@ lua_newt_setcolors(lua_State *L)
 	return luaL_error(L, "newt: setcolors unimplemented");
 }
 
+/***
+Set the colors of a single colorset.
+@function setcolor
+@param colorset a NEWT_COLORSET_* constant
+@param fg foreground color name
+@param bg background color name
+*/
 static int
 lua_newt_setcolor(lua_State *L)
 {
@@ -367,6 +461,10 @@ lua_newt_setcolor(lua_State *L)
 	return 0;
 }
 
+/***
+Refresh the screen, flushing any pending changes.
+@function refresh
+*/
 static int
 lua_newt_refresh(lua_State *L)
 {
@@ -375,6 +473,10 @@ lua_newt_refresh(lua_State *L)
 	return 0;
 }
 
+/***
+Suspend the newt display so the caller can draw with another library.
+@function suspend
+*/
 static int
 lua_newt_suspend(lua_State *L)
 {
@@ -383,6 +485,11 @@ lua_newt_suspend(lua_State *L)
 	return 0;
 }
 
+/***
+Set a callback invoked on suspend.  Unimplemented.
+@function setsuspendcallback
+@raise always raises "unimplemented"
+*/
 static int
 lua_newt_setsuspendcallback(lua_State *L)
 {
@@ -390,6 +497,11 @@ lua_newt_setsuspendcallback(lua_State *L)
 	return luaL_error(L, "newt: setsuspendcallback unimplemented");
 }
 
+/***
+Set a callback invoked on the help key.  Unimplemented.
+@function sethelpcallback
+@raise always raises "unimplemented"
+*/
 static int
 lua_newt_sethelpcallback(lua_State *L)
 {
@@ -397,6 +509,10 @@ lua_newt_sethelpcallback(lua_State *L)
 	return luaL_error(L, "newt: sethelpcallback unimplemented");
 }
 
+/***
+Resume the newt display after a suspend.
+@function resume
+*/
 static int
 lua_newt_resume(lua_State *L)
 {
@@ -405,6 +521,11 @@ lua_newt_resume(lua_State *L)
 	return 0;
 }
 
+/***
+Push a line onto the help-line stack.
+@function pushhelpline
+@param text the help line text
+*/
 static int
 lua_newt_pushhelpline(lua_State *L)
 {
@@ -416,6 +537,10 @@ lua_newt_pushhelpline(lua_State *L)
 	return 0;
 }
 
+/***
+Redraw the current help line.
+@function redrawhelpline
+*/
 static int
 lua_newt_redrawhelpline(lua_State *L)
 {
@@ -424,6 +549,10 @@ lua_newt_redrawhelpline(lua_State *L)
 	return 0;
 }
 
+/***
+Pop a line off the help-line stack.
+@function pophelpline
+*/
 static int
 lua_newt_pophelpline(lua_State *L)
 {
@@ -432,6 +561,13 @@ lua_newt_pophelpline(lua_State *L)
 	return 0;
 }
 
+/***
+Draw text at absolute screen coordinates outside any window.
+@function drawroottext
+@param col screen column
+@param row screen row
+@param text the text to draw
+*/
 static int
 lua_newt_drawroottext(lua_State *L)
 {
@@ -444,6 +580,10 @@ lua_newt_drawroottext(lua_State *L)
 	return 0;
 }
 
+/***
+Ring the terminal bell.
+@function bell
+*/
 static int
 lua_newt_bell(lua_State *L)
 {
@@ -452,6 +592,10 @@ lua_newt_bell(lua_State *L)
 	return 0;
 }
 
+/***
+Hide the terminal cursor.
+@function cursoroff
+*/
 static int
 lua_newt_cursoroff(lua_State *L)
 {
@@ -460,6 +604,10 @@ lua_newt_cursoroff(lua_State *L)
 	return 0;
 }
 
+/***
+Show the terminal cursor.
+@function cursoron
+*/
 static int
 lua_newt_cursoron(lua_State *L)
 {
@@ -468,6 +616,12 @@ lua_newt_cursoron(lua_State *L)
 	return 0;
 }
 
+/***
+Return the current screen size.
+@function getscreensize
+@treturn int number of columns
+@treturn int number of rows
+*/
 static int
 lua_newt_getscreensize(lua_State *L)
 {
