@@ -8,6 +8,8 @@
 
 #include "luanewt.h"
 
+#include "banned.h"
+
 static int
 gc(lua_State *L)
 {
@@ -32,8 +34,8 @@ gc(lua_State *L)
 static int
 compactbutton(lua_State *L)
 {
-	int left = luaL_checkinteger(L, 1);
-	int top = luaL_checkinteger(L, 2);
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
 	const char *text = luaL_checkstring(L, 3);
 
 	(void)lua_component_set(L, newtCompactButton(left, top, text),
@@ -45,8 +47,8 @@ compactbutton(lua_State *L)
 static int
 button(lua_State *L)
 {
-	int left = luaL_checkinteger(L, 1);
-	int top = luaL_checkinteger(L, 2);
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
 	const char *text = luaL_checkstring(L, 3);
 
 	(void)lua_component_set(L, newtButton(left, top, text),
@@ -58,8 +60,8 @@ button(lua_State *L)
 static int
 checkbox(lua_State *L)
 {
-	int left = luaL_checkinteger(L, 1);
-	int top = luaL_checkinteger(L, 2);
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
 	const char *text = luaL_checkstring(L, 3);
 	int on = lua_toboolean(L, 4);
 
@@ -123,8 +125,8 @@ static const luaL_Reg newtcheckbox_meta[] = {
 static int
 label(lua_State *L)
 {
-	int left = luaL_checkinteger(L, 1);
-	int top = luaL_checkinteger(L, 2);
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
 	const char *text = luaL_checkstring(L, 3);
 
 	(void)lua_component_set(L, newtLabel(left, top, text), NEWTLABEL_MT);
@@ -178,9 +180,9 @@ listboxflags(lua_State *L, int idx, int *flags)
 static int
 listbox(lua_State *L)
 {
-	int left = luaL_checkinteger(L, 1);
-	int top = luaL_checkinteger(L, 2);
-	int height = luaL_checkinteger(L, 3);
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
+	int height = luaL_checkint(L, 3);
 	int flags = 0;
 
 	listboxflags(L, 4, &flags);
@@ -223,7 +225,7 @@ static int
 listboxcurrent(lua_State *L)
 {
 	struct luanewtco *co = luaL_checkudata(L, 1, NEWTLISTBOX_MT);
-	void *vp;
+	const void *vp;
 	int ref;
 
 	if (co->co == NULL || co->tref == 0)
@@ -249,7 +251,7 @@ static int
 listboxsetwidth(lua_State *L)
 {
 	struct luanewtco *co = luaL_checkudata(L, 1, NEWTLISTBOX_MT);
-	int width = luaL_checkinteger(L, 2);
+	int width = luaL_checkint(L, 2);
 
 	if (co->co == NULL)
 		return luaL_error(L, "component destroyed");

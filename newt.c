@@ -15,6 +15,8 @@
 
 #include "luanewt.h"
 
+#include "banned.h"
+
 #define NEWT_CO_REGISTRY "NEWTCOMPONENT"
 
 static int g_initialized;
@@ -100,7 +102,6 @@ lua_component_unset(lua_State *L, newtComponent co)
 struct luanewtco *
 lua_to_anycomponent(lua_State *L, int index)
 {
-	struct luanewtco *co;
 	int i;
 	const char *typs[] = {
 		NEWTCOMPONENT_MT,
@@ -111,7 +112,8 @@ lua_to_anycomponent(lua_State *L, int index)
 	};
 
 	for (i = 0; typs[i] != NULL; i++) {
-		co = luaL_testudata(L, index, typs[i]);
+		struct luanewtco *co = luaL_testudata(L, index, typs[i]);
+
 		if (co != NULL)
 			return co;
 	}
@@ -274,7 +276,7 @@ lua_newt_delay(lua_State *L)
 	int delay;
 
 	CHECK_INIT();
-	delay = luaL_checkinteger(L, 1);
+	delay = luaL_checkint(L, 1);
 	luaL_argcheck(L, delay >= 0, 1, "delay must be non-negative");
 	newtDelay((unsigned int)delay);
 	return 0;
@@ -283,10 +285,10 @@ lua_newt_delay(lua_State *L)
 static int
 lua_newt_openwindow(lua_State *L)
 {
-	int left = luaL_checkinteger(L, 1);
-	int top = luaL_checkinteger(L, 2);
-	int width = luaL_checkinteger(L, 3);
-	int height = luaL_checkinteger(L, 4);
+	int left = luaL_checkint(L, 1);
+	int top = luaL_checkint(L, 2);
+	int width = luaL_checkint(L, 3);
+	int height = luaL_checkint(L, 4);
 	const char *title = luaL_checkstring(L, 5);
 
 	CHECK_INIT();
@@ -303,8 +305,8 @@ lua_newt_openwindow(lua_State *L)
 static int
 lua_newt_centeredwindow(lua_State *L)
 {
-	int width = luaL_checkinteger(L, 1);
-	int height = luaL_checkinteger(L, 2);
+	int width = luaL_checkint(L, 1);
+	int height = luaL_checkint(L, 2);
 	const char *title = luaL_checkstring(L, 3);
 
 	CHECK_INIT();
@@ -344,14 +346,23 @@ lua_newt_setcolors(lua_State *L)
 static int
 lua_newt_setcolor(lua_State *L)
 {
-	int colorset = luaL_checkinteger(L, 1);
+	int colorset = luaL_checkint(L, 1);
 	const char *fg = luaL_checkstring(L, 2);
 	const char *bg = luaL_checkstring(L, 3);
 
 	CHECK_INIT();
 
 	/* newt does not modify these strings despite the non-const API. */
-	newtSetColor(colorset, (char *)fg, (char *)bg);
+	{
+		union {
+			const char *c;
+			char *m;
+		} u1, u2;
+
+		u1.c = fg;
+		u2.c = bg;
+		newtSetColor(colorset, u1.m, u2.m);
+	}
 
 	return 0;
 }
@@ -424,8 +435,8 @@ lua_newt_pophelpline(lua_State *L)
 static int
 lua_newt_drawroottext(lua_State *L)
 {
-	int col = luaL_checkinteger(L, 1);
-	int row = luaL_checkinteger(L, 2);
+	int col = luaL_checkint(L, 1);
+	int row = luaL_checkint(L, 2);
 	const char *text = luaL_checkstring(L, 3);
 
 	CHECK_INIT();

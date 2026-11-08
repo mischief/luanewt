@@ -40,4 +40,8 @@ newtComponent luanewt_get_runform(void);
 int luanewt_take_error(lua_State *);
 int luanewt_is_finished(void);
 
+LUANEWT_API int luaopen_newt(lua_State *);
+
+#define luaL_checkint(L, i) ((int)luaL_checkinteger(L, i))
+
 #endif

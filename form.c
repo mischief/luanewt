@@ -6,27 +6,27 @@
 
 #include "luanewt.h"
 
+#include "banned.h"
+
 static void
 form_destroy(lua_State *L, struct luanewtco *c)
 {
-	int i;
-
 	if (c->co == NULL)
 		return;
 
 	/* mark every child dead and drop its registry entry */
 	if (lua_getuservalue(L, 1) == LUA_TTABLE) {
-		for (i = 1;; i++) {
-			struct luanewtco *ch;
-			newtComponent chco;
+		for (int i = 1;; i++) {
 			int ty = lua_geti(L, -1, i);
 
 			if (ty != LUA_TUSERDATA)
 				break;
 
-			ch = lua_to_anycomponent(L, -1);
+			struct luanewtco *ch = lua_to_anycomponent(L, -1);
+
 			if (ch != NULL && ch->co != NULL) {
-				chco = ch->co;
+				newtComponent chco = ch->co;
+
 				lua_component_unset(L, chco);
 				ch->co = NULL;
 			}
@@ -46,7 +46,7 @@ static int
 lua_newt_form(lua_State *L)
 {
 	newtComponent form, bar;
-	struct luanewtco *vbar;
+	const struct luanewtco *vbar;
 
 	if (lua_isnoneornil(L, 1))
 		bar = NULL;
@@ -167,7 +167,7 @@ static int
 addhotkey(lua_State *L)
 {
 	struct luanewtco *form = luaL_checkudata(L, 1, NEWTFORM_MT);
-	int key = luaL_checkinteger(L, 2);
+	int key = luaL_checkint(L, 2);
 
 	if (form->co == NULL)
 		return luaL_error(L, "form destroyed");
@@ -181,7 +181,7 @@ static int
 watchfd(lua_State *L)
 {
 	struct luanewtco *form = luaL_checkudata(L, 1, NEWTFORM_MT);
-	int fd = luaL_checkinteger(L, 2);
+	int fd = luaL_checkint(L, 2);
 	int flags = 0;
 
 	if (form->co == NULL)
@@ -215,7 +215,7 @@ static int
 settimer(lua_State *L)
 {
 	struct luanewtco *form = luaL_checkudata(L, 1, NEWTFORM_MT);
-	int ms = luaL_checkinteger(L, 2);
+	int ms = luaL_checkint(L, 2);
 
 	if (form->co == NULL)
 		return luaL_error(L, "form destroyed");

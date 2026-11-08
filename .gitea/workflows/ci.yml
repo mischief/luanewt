@@ -1,0 +1,29 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            meson ninja-build \
+            lua5.4 liblua5.4-dev \
+            libnewt-dev \
+            cppcheck clang-format
+
+      - name: Setup
+        run: meson setup build
+
+      - name: Build
+        run: ninja -C build
+
+      - name: cppcheck
+        run: ninja -C build cppcheck
